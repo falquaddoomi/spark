@@ -968,6 +968,11 @@ class LDAModel(JavaModelWrapper, JavaSaveable, Loader):
         return self.call("vocabSize")
 
     @since('1.6.0')
+    def topicDistributions(self):
+        """Returns an RDD[(Long,Vector)] where each Long is a document ID and each Vector is a distribution over the topics"""
+        return self.call("topicDistributions")
+
+    @since('1.6.0')
     def describeTopics(self, maxTermsPerTopic=None):
         """Return the topics described by weighted terms.
 

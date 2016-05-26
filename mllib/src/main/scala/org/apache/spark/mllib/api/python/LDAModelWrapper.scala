@@ -19,8 +19,11 @@ package org.apache.spark.mllib.api.python
 import scala.collection.JavaConverters
 
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.clustering.LDAModel
-import org.apache.spark.mllib.linalg.Matrix
+// import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
+import org.apache.spark.api.java.JavaRDD
+import org.apache.spark.mllib.clustering.{LDAModel,DistributedLDAModel}
+import org.apache.spark.mllib.linalg.{Matrix, Vector}
 
 /**
  * Wrapper around LDAModel to provide helper methods in Python
@@ -32,6 +35,12 @@ private[python] class LDAModelWrapper(model: LDAModel) {
   def vocabSize(): Int = model.vocabSize
 
   def describeTopics(): Array[Byte] = describeTopics(this.model.vocabSize)
+
+  def topicDistributions: JavaRDD[Vector] = {
+    model.asInstanceOf[DistributedLDAModel].topicDistributions.map {
+      case Tuple2(docID, vec) => vec
+    }
+  }
 
   def describeTopics(maxTermsPerTopic: Int): Array[Byte] = {
     val topics = model.describeTopics(maxTermsPerTopic).map { case (terms, termWeights) =>
