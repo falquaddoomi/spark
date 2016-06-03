@@ -19,11 +19,12 @@ package org.apache.spark.mllib.api.python
 import scala.collection.JavaConverters
 
 import org.apache.spark.SparkContext
-// import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
 import org.apache.spark.api.java.JavaRDD
-import org.apache.spark.mllib.clustering.{LDAModel,DistributedLDAModel}
+import org.apache.spark.api.python.SerDeUtil
+import org.apache.spark.mllib.clustering.{DistributedLDAModel, LDAModel}
 import org.apache.spark.mllib.linalg.{Matrix, Vector}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
 
 /**
  * Wrapper around LDAModel to provide helper methods in Python
@@ -36,10 +37,13 @@ private[python] class LDAModelWrapper(model: LDAModel) {
 
   def describeTopics(): Array[Byte] = describeTopics(this.model.vocabSize)
 
-  def topicDistributions: JavaRDD[Vector] = {
-    model.asInstanceOf[DistributedLDAModel].topicDistributions.map {
-      case Tuple2(docID, vec) => vec
-    }
+  def topicDistributions: JavaRDD[Array[Byte]] = {
+    val toconvert = model.asInstanceOf[DistributedLDAModel].topicDistributions
+    val q = SerDeUtil.pairRDDToPython(toconvert.asInstanceOf[RDD[(Any, Any)]], 10)
+    JavaRDD.fromRDD(q)
+    // model.asInstanceOf[DistributedLDAModel].topicDistributions.map {
+    //   case Tuple2(docID, vec) => (docID, vec)
+    // }
   }
 
   def describeTopics(maxTermsPerTopic: Int): Array[Byte] = {

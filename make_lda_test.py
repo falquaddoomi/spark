@@ -3,6 +3,8 @@
 from pyspark.mllib.clustering import LDA, LDAModel
 from pyspark.ml.feature import CountVectorizer, StopWordsRemover, Tokenizer
 
+sc.setLogLevel("ERROR")
+
 messages = sc.textFile("/Users/faisal/Projects/eaf_v2/eaf_spark/data/examples.txt").flatMap(lambda x: x.split('\n'))
 messages.collect()
 
@@ -25,4 +27,6 @@ corpus.collect()
 ldaModel = LDA.train(corpus, k=5)
 p = ldaModel.topicDistributions().collect()
 
-print p
+import pprint
+print "value of p:"
+pprint.pprint(p)

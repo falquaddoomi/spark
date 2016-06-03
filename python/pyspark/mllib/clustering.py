@@ -18,6 +18,7 @@
 import sys
 import array as pyarray
 import warnings
+import pickle
 
 if sys.version > '3':
     xrange = range
@@ -970,7 +971,10 @@ class LDAModel(JavaModelWrapper, JavaSaveable, Loader):
     @since('1.6.0')
     def topicDistributions(self):
         """Returns an RDD[(Long,Vector)] where each Long is a document ID and each Vector is a distribution over the topics"""
-        return self.call("topicDistributions")
+        topdists = self.call("topicDistributions")
+
+        # deserialize bytes and combine into a single result set
+        return topdists.map(lambda x: pickle.loads(x))
 
     @since('1.6.0')
     def describeTopics(self, maxTermsPerTopic=None):
