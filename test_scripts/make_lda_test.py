@@ -25,8 +25,12 @@ from pyspark.mllib.linalg import Vector, SparseVector, DenseVector
 corpus = msg_vec.rdd.map(lambda row: [int(row['docID']), DenseVector(row.asDict()['vec'].toArray())])
 corpus.collect()
 ldaModel = LDA.train(corpus, k=5)
-p = ldaModel.topicDistributions().collect()
+
+topics = ldaModel.topicDistributions()
+p = topics.collect()
 
 import pprint
 print "value of p:"
 pprint.pprint(p)
+
+# topics_rdd = sc.parallelize(topics.reduce(lambda x,y: x+y))
