@@ -760,6 +760,14 @@ class LDAModel(JavaModelWrapper, JavaSaveable, Loader):
             topics = self.call("describeTopics", maxTermsPerTopic)
         return topics
 
+    @since('1.6.0')
+    def topicDistributions(self):
+        """Returns an RDD[(Long,Vector)] where each Long is a document ID and each Vector is a distribution over the topics"""
+        topdists = self.call("topicDistributions")
+        
+        # deserialize bytes and combine into a single result set
+        return topdists.map(lambda x: pickle.loads(x))
+
     @classmethod
     @since('1.5.0')
     def load(cls, sc, path):

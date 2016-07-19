@@ -19,8 +19,12 @@ package org.apache.spark.mllib.api.python
 import scala.collection.JavaConverters
 
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.clustering.LDAModel
-import org.apache.spark.mllib.linalg.Matrix
+import org.apache.spark.api.java.JavaRDD
+import org.apache.spark.api.python.SerDeUtil
+import org.apache.spark.mllib.clustering.{DistributedLDAModel, LDAModel}
+import org.apache.spark.mllib.linalg.{Matrix, Vector}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
 
 /**
  * Wrapper around LDAModel to provide helper methods in Python
@@ -40,6 +44,12 @@ private[python] class LDAModelWrapper(model: LDAModel) {
       Array[Any](jTerms, jTermWeights)
     }
     SerDe.dumps(JavaConverters.seqAsJavaListConverter(topics).asJava)
+  }
+
+  def topicDistributions: JavaRDD[Array[Byte]] = {
+    val toconvert = model.asInstanceOf[DistributedLDAModel].topicDistributions
+    val q = SerDeUtil.pairRDDToPython(toconvert.asInstanceOf[RDD[(Any, Any)]], 10)
+    JavaRDD.fromRDD(q)
   }
 
   def save(sc: SparkContext, path: String): Unit = model.save(sc, path)
