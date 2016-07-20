@@ -27,7 +27,7 @@ corpus.collect()
 ldaModel = LDA.train(corpus, k=5)
 
 topics = ldaModel.topicDistributions()
-p = topics.collect()
+p = topics.sortByKey().collect()
 
 import pprint
 print "value of p:"
